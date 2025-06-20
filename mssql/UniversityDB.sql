@@ -1,10 +1,7 @@
---Creates UniversityDB Database
 CREATE DATABASE UniversityDB;
 
---Uses UniversityDB Database for queries
 USE UniversityDB;
 
---Denormalized, duplicated and raw data for university combined
 CREATE TABLE UniversityData (
 	student_ID INT,
 	firstName VARCHAR(50),
@@ -28,7 +25,6 @@ CREATE TABLE UniversityData (
 	enrollmentDate DATE,
 );
 
---Inserts the sample data into UniversityData table
 INSERT INTO UniversityData (
 	student_ID, firstName, lastName, dateOfBirth, gender, email,
 	phoneNumber, currentAddress, professor_ID, experienceInYears,
@@ -66,9 +62,6 @@ VALUES
 	(9929, 'Felix', 'Fisher', '2001-09-10', 'Male', 'felix.fisher@email.com', '444-999-3333', '1701 Willow Dr', 204, 5, '2020-09-01', 101, 'CS', 'Computer Science', 329, 'CS150', 'Computer Architecture', 3, 1029, '2023-10-03'),
 	(9930, 'Grace', 'Grant', '2003-01-05', 'Female', 'grace.grant@email.com', '777-222-4444', '1801 Maple Ct', 205, 10, '2015-05-15', 102, 'ENG', 'English', 330, 'ENGL350', 'Literary Theory', 3, 1030, '2023-10-04');
 
---All the tables and data is normalized according to 1NF, 2NF and 3NF below
-
---Creates Departments table
 CREATE TABLE Departments (
 	department_ID INT,
 	departmentCode VARCHAR(10) NOT NULL UNIQUE,
@@ -76,7 +69,6 @@ CREATE TABLE Departments (
 	PRIMARY KEY (department_ID),
 );
 
---Creates Professors table
 CREATE TABLE Professors (
 	professor_ID INT,
 	firstName VARCHAR(50) NOT NULL,
@@ -87,12 +79,11 @@ CREATE TABLE Professors (
 	experienceInYears INT NOT NULL CHECK (experienceInYears >= 7),
 	hireDate DATE NOT NULL,
 	inDepartment INT,
-	isHeadOfDepartment BIT,		--1 for HOD and 0 for Not HOD
+	isHeadOfDepartment BIT,
 	PRIMARY KEY (professor_ID),
 	FOREIGN KEY (inDepartment) REFERENCES Departments (department_ID),
 );
 
---Creates Students table
 CREATE TABLE Students (
 	student_ID INT,
 	firstName VARCHAR(50) NOT NULL,
@@ -107,7 +98,6 @@ CREATE TABLE Students (
 	FOREIGN KEY (inDepartment) REFERENCES Departments (department_ID),
 );
 
---Creates Courses table
 CREATE TABLE Courses (
 	course_ID INT,
 	courseCode VARCHAR(10) NOT NULL UNIQUE,
@@ -120,17 +110,15 @@ CREATE TABLE Courses (
 	FOREIGN KEY (instructor) REFERENCES Professors (professor_ID),
 );
 
---Creates Enrollment table
 CREATE TABLE Enrollment (
 	enrollmentDate DATE,
 	enrolledInCourse INT,
 	enrolledStudent INT,
-	PRIMARY KEY (enrolledStudent, enrolledInCourse),	--Composite primary key
+	PRIMARY KEY (enrolledStudent, enrolledInCourse),
 	FOREIGN KEY (enrolledInCourse) REFERENCES Courses (course_ID),
 	FOREIGN KEY (enrolledStudent) REFERENCES Students (student_ID),
 );
 
---Inserts the sample data into Departments table
 INSERT INTO Departments (
 	department_ID, departmentCode, departmentName)
 VALUES
@@ -139,7 +127,6 @@ VALUES
 	(103, 'BIO', 'Biology'),
 	(104, 'MATH', 'Mathematics');
 
---Inserts the sample data into Professors table
 INSERT INTO Professors (
 	professor_ID, firstName, lastName, gender, email, phoneNumber,
 	experienceInYears, hireDate, inDepartment, isHeadOfDepartment)
@@ -155,7 +142,6 @@ VALUES
 	(209, 'Ian', 'Anderson', 'Male', 'ian.anderson@email.com', '999-111-3333', 12, '2014-05-15', 102, 1),
 	(210, 'Jane', 'Thomas', 'Female', 'jane.thomas@email.com', '222-777-4444', 15, '2023-10-01', 101, 1);
 
---Inserts the sample data into Students table
 INSERT INTO Students (
 	student_ID, firstName, lastName, dateOfBirth, gender,
 	email, phoneNumber, currentAddress, inDepartment)
@@ -181,7 +167,6 @@ VALUES
 	(9929, 'Felix', 'Fisher', '2001-09-10', 'Male', 'felix.fisher@email.com', '444-999-3333', '1701 Willow Dr', 102),
 	(9930, 'Grace', 'Grant', '2003-01-05', 'Female', 'grace.grant@email.com', '777-222-4444', '1801 Maple Ct', 104);
 
---Inserts the sample data into Courses table
 INSERT INTO Courses (
 	course_ID, courseCode, courseName,
 	creditHours, courseOfDepartment, instructor)
@@ -203,7 +188,6 @@ VALUES
 	(315, 'BIO150', 'Botany', 3, 103, 208),
 	(316, 'MATH220', 'Calculus II', 4, 104, 206);
 
---Inserts the sample data into Enrollment table
 INSERT INTO Enrollment
 	(enrollmentDate, enrolledInCourse, enrolledStudent)
 VALUES
@@ -224,7 +208,6 @@ VALUES
 	('2023-09-19', 308, 9919),
 	('2023-09-20', 309, 9920);
 
---Selects all data from UniversityData, Departments, Professors, Students, Courses and Enrollment table
 SELECT * FROM UniversityData;
 SELECT * FROM Departments;
 SELECT * FROM Professors;
@@ -232,99 +215,66 @@ SELECT * FROM Students;
 SELECT * FROM Courses;
 SELECT * FROM Enrollment;
 
---It displays the table with combination of first name and last name with professor_ID and student_ID
 SELECT professor_ID, CONCAT(firstName, ' ', lastName) AS [fullName] FROM Professors;
 SELECT student_ID, CONCAT(firstName, ' ', lastName) AS [fullName] FROM Students;
 
---Updates the record with ID 309 courseName from Algorithms to Theory of Automata
 UPDATE Courses
 SET courseName = 'Theory of Automata'
 WHERE course_ID = 309;
 
---Updates the record date of enrolledStudent 9912
 UPDATE Enrollment
 SET enrollmentDate = '2023-10-01'
 WHERE enrolledStudent = 9912;
 
---Deletes the student enrolled with ID 9919 from Enrollment table
 DELETE FROM Enrollment
 WHERE enrolledStudent = 9919;
 
---Deletes all the records from the Students table
 DELETE FROM Students;
 
-
---TEST CASES
-
---Valid Data Insertion
---Verify that a new, valid student can be successfully inserted into the `Students` table.
 INSERT INTO Students (student_ID, firstName, lastName, dateOfBirth, gender, email, phoneNumber, currentAddress, inDepartment)
 VALUES (9931, 'Test', 'Student', '2004-01-01', 'Other', 'test.student@email.com', '123-456-7891', '1 Test St', 101);
 SELECT * FROM Students WHERE student_ID = 9931;
 
---Duplicate Code Rejection
---Ensure that the `UNIQUE` constraint on `departmentCode` in the `Departments` table is enforced.
 INSERT INTO Departments (department_ID, departmentCode, departmentName)
 VALUES (105, 'CS', 'Duplicate Department');
 
---Invalid Credit Hours
---Check that the `CHECK` constraint on `creditHours` in the `Courses` table is enforced.
 INSERT INTO Courses (course_ID, courseCode, courseName, creditHours, courseOfDepartment, instructor)
 VALUES (331, 'CS999', 'Invalid Credits', 5, 101, 201);
 
---Foreign Key Violation (Invalid Department)
---Verify that the foreign key constraint on `inDepartment` in the `Students` table is enforced.
 INSERT INTO Students (student_ID, firstName, lastName, dateOfBirth, gender, email, phoneNumber, currentAddress, inDepartment)
 VALUES (9932, 'Bad', 'Student', '2004-01-01', 'Other', 'bad.student@email.com', '123-456-7892', '1 Bad St', 999);
 
---Enrollment with Non-Existent Student/Course
---Test the foreign key constraints in the `Enrollment` table.
 INSERT INTO Enrollment (enrollmentDate, enrolledInCourse, enrolledStudent)
 VALUES ('2024-01-01', 999, 9911);
 INSERT INTO Enrollment (enrollmentDate, enrolledInCourse, enrolledStudent)
 VALUES ('2024-01-01', 301, 9999);
 
---Professor with Invalid Experience
---Verify the `CHECK` constraint on `experienceInYears` in the `Professors` table.
 INSERT INTO Professors (professor_ID, firstName, lastName, gender, email, phoneNumber, experienceInYears, hireDate, inDepartment, isHeadOfDepartment)
 VALUES (211, 'Young', 'Professor', 'Male', 'young.prof@email.com', '111-222-3333', 6, '2024-01-01', 101, 0);
 
---Update Department Code
---Test updating a department's code.
 UPDATE Departments
 SET departmentCode = 'IT'
 WHERE department_ID = 101;
 SELECT * FROM Departments WHERE department_ID = 101;
 
---Delete a Department with Existing Foreign Key References
---Check the behavior when deleting a department that has associated students, professors, or courses.
 DELETE FROM Departments
 WHERE department_ID = 101;
 SELECT * FROM Departments WHERE department_ID = 101;
 SELECT * FROM Students WHERE inDepartment = 101;
 
---Querying Student and Department Information
---Test joining tables to retrieve related data.
 SELECT s.firstName, s.lastName, d.departmentName
 FROM Students s
 JOIN Departments d ON s.inDepartment = d.department_ID;
 
---Modifying Enrollment Data
---Test updating and deleting records in the `Enrollment` table.
 UPDATE Enrollment
 SET enrollmentDate = '2024-02-01'
 WHERE enrolledStudent = 9911 AND enrolledInCourse = 316;
 SELECT * FROM Enrollment WHERE enrolledStudent = 9911 AND enrolledInCourse = 316;
 
-
--- Aggregate Functions and Grouping
-
--- Add GPA column
 ALTER TABLE Students
 ADD GPA DECIMAL(3, 2);
 GO
 
--- Set Student GPAs
 UPDATE Students SET GPA = 3.8 WHERE student_ID = 9911;
 UPDATE Students SET GPA = 3.9 WHERE student_ID = 9912;
 UPDATE Students SET GPA = 3.7 WHERE student_ID = 9913;
@@ -347,7 +297,6 @@ UPDATE Students SET GPA = 2.4 WHERE student_ID = 9929;
 UPDATE Students SET GPA = 2.5 WHERE student_ID = 9930;
 GO
 
--- Average GPA per Department
 SELECT
     D.departmentName,
     AVG(S.GPA) AS AverageGPA
@@ -359,7 +308,6 @@ GROUP BY
     D.departmentName;
 GO
 
--- Departments with more than 5 Students (No records are shown with 10)
 SELECT
     D.departmentName,
     COUNT(S.student_ID) AS NumberOfStudents
@@ -373,11 +321,6 @@ HAVING
     COUNT(S.student_ID) > 5;
 GO
 
-
-
--- Joins
-
--- Left Join to get all multi table data of all students, their enrolled courses and the professor teaching the course. NULL for those students who are not enrolled.
 SELECT
     S.student_ID,
     S.firstName AS StudentFirstName,
@@ -396,11 +339,6 @@ LEFT JOIN
     Professors AS P ON C.instructor = P.professor_ID;
 GO
 
-
-
--- Subqueries and Nested Queries
-
--- Query using Correlated Subquery
 SELECT
     S.firstName,
     S.lastName,
@@ -416,7 +354,6 @@ WHERE
              WHERE S2.inDepartment = S.inDepartment);
 GO
 
--- Query using a Nested Query
 WITH DepartmentAverageGPAs AS (
     SELECT
         inDepartment,
@@ -442,11 +379,6 @@ WHERE
     S.GPA > DAG.AverageDepartmentGPA;
 GO
 
-
-
--- Stored Procedures and Triggers
-
--- Create the table to store audit information for courses
 CREATE TABLE CourseAudit (
     AuditID INT IDENTITY(1,1) PRIMARY KEY,
     CourseID INT,
@@ -458,7 +390,6 @@ CREATE TABLE CourseAudit (
 );
 GO
 
--- Create the trigger
 CREATE TRIGGER trg_Course_InsertAudit
 ON Courses
 AFTER INSERT
@@ -485,7 +416,6 @@ GO
 SELECT * FROM CourseAudit;
 GO
 
--- Create the stored procedure
 CREATE PROCEDURE sp_GetProfessorCourseEnrollment
     @professor_id INT
 AS
@@ -512,11 +442,6 @@ EXEC sp_GetProfessorCourseEnrollment @professor_id = 201;
 EXEC sp_GetProfessorCourseEnrollment @professor_id = 205;
 GO
 
-
-
--- Indexing
-
--- Measure their performance improvement
 SET STATISTICS IO ON;
 GO
 
@@ -525,7 +450,6 @@ FROM Enrollment
 WHERE enrolledInCourse = 316;
 GO
 
--- Create Non clustered indexing
 CREATE NONCLUSTERED INDEX IX_Enrollment_CourseID
 ON Enrollment (enrolledInCourse);
 GO
@@ -535,30 +459,21 @@ FROM Enrollment
 WHERE enrolledInCourse = 316;
 GO
 
-
-
--- Transactions and Rollbacks
-
--- Add new column in students table
 ALTER TABLE Students
 ADD availableCreditLoad INT;
 GO
 
--- Sample record
 UPDATE Students SET availableCreditLoad = 12;
 GO
 
--- Add new column in courses table
 ALTER TABLE Courses
 ADD seatsAvailable INT;
 GO
 
--- Sample record
 UPDATE Courses SET seatsAvailable = 5 WHERE course_ID = 301;
 UPDATE Courses SET seatsAvailable = 0 WHERE course_ID = 303;
 GO
 
--- For Success
 BEGIN TRANSACTION;
 
 DECLARE @studentId INT = 9928;
@@ -597,7 +512,6 @@ BEGIN
 END
 GO
 
--- For Failure
 BEGIN TRANSACTION;
 
 DECLARE @studentIdFail INT = 9930;
