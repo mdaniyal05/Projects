@@ -1,2 +1,2 @@
 # Projects
-All kinds of projects
+Games, Scripts and Mini Projects.
